@@ -1,6 +1,5 @@
 import * as path from "path";
 import * as fs from "fs";
-import * as marked from "marked";
 
 import { Reflection } from "typedoc/dist/lib/models/reflections/abstract";
 import { Component, ConverterComponent } from "typedoc/dist/lib/converter/components";
@@ -15,20 +14,6 @@ interface ModuleRename {
   renameTo: string;
   reflection: ContainerReflection;
 }
-
-marked.setOptions({
-  renderer: new marked.Renderer(),
-  highlight: function (code) {
-    return require('highlight.js').highlightAuto(code).value;
-  },
-  pedantic: false,
-  gfm: true,
-  tables: true,
-  breaks: false,
-  sanitize: false,
-  smartLists: true,
-  smartypants: false,
-});
 
 /**
  * This plugin allows you to provide a mapping regexp between your source folder structure, and the module that should be
@@ -153,7 +138,7 @@ export class ExternalModuleMapPlugin extends ConverterComponent {
           set() { return "Package"; },
         });
         let readme = fs.readFileSync(path.join(root, 'README.md'));
-        ref.comment = new Comment("", marked(readme.toString()));
+        ref.comment = new Comment("", readme.toString());
       } catch(e){
         console.error(`No README found for module "${name}"`);
       }
