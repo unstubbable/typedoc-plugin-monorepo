@@ -138,7 +138,7 @@ export class ExternalModuleMapPlugin extends ConverterComponent {
       let ref = refsArray
         .filter(ref => ref.name === name)
         .find(ref => path.isAbsolute(ref.originalName)) as ContainerReflection;
-      let root = ref.originalName.replace(new RegExp(`${name}.*`, "gi"), name);
+      let root = ref.originalName.substring(0, ref.originalName.lastIndexOf(name)) + name;
       try {
         // tslint:disable-next-line ban-types
         Object.defineProperty(ref, "kindString", {
