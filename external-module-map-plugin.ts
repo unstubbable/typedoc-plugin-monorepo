@@ -138,20 +138,34 @@ export class ExternalModuleMapPlugin extends ConverterComponent {
       let ref = refsArray
         .filter(ref => ref.name === name)
         .find(ref => path.isAbsolute(ref.originalName)) as ContainerReflection;
-      let root = ref.originalName.replace(new RegExp(`${name}.*`, "gi"), name);
-      try {
-        // tslint:disable-next-line ban-types
-        Object.defineProperty(ref, "kindString", {
-          get() {
-            return "Package";
-          },
-          set() {
-            return "Package";
+      // tslint:disable-next-line ban-types
+      Object.defineProperty(ref, "kindString", {
+        get() {
+          return "Package";
+        },
+        set() {
+          return "Package";
+        }
+      });
+      const pathRoot = path.parse(ref.originalName).root;
+      const pathStack = path.dirname(ref.originalName).split(path.sep);
+      let readme = undefined;
+      do {
+        if (name === pathStack[pathStack.length-1]) {
+          const readmePath = path.join(pathRoot, ...pathStack, "README.md");
+          console.log(`Expecting README for ${name} at ${readmePath}`);
+          try {
+            readme = fs.readFileSync(readmePath)
+          } catch (e) {
+            console.log(`Error reading README.md at ${readmePath}`, e);
           }
-        });
-        let readme = fs.readFileSync(path.join(root, "README.md"));
+        }
+        pathStack.pop();
+      } while ((readme === undefined) && (pathStack.length > 0))
+      if (readme) {
         ref.comment = new Comment("", readme.toString());
-      } catch (e) {
+      } else {
+
         console.error(`No README found for module "${name}"`);
       }
     });
