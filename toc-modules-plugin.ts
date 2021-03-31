@@ -37,7 +37,7 @@ export class TocModulesPlugin extends RendererComponent {
     const trail: Reflection[] = [];
 
     while (model !== page.project) {
-      const isModule = model.kindOf(ReflectionKind.SomeModule);
+      const isModule = model.kindOf && model.kindOf(ReflectionKind.SomeModule);
 
       trail.unshift(model);
 
